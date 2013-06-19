@@ -18,8 +18,8 @@ public abstract class ModuleBuilder<Parent>
 extends ModuleContainer<ModuleBuilder<Parent>>
 implements Builder<Module>, Injection<Parent> {
 
-    private List<Installable<PrivateBinder>> exposings = emptyList();
-    private List<Installable<Binder>> bindings = emptyList();
+    private List<Configuration<PrivateBinder>> exposings = emptyList();
+    private List<Configuration<Binder>> bindings = emptyList();
 
     public <Type> TypeBinding<Type, ModuleBuilder<Parent>> exposeAndBind(
             Class<Type> clazz) {
@@ -28,12 +28,12 @@ implements Builder<Module>, Injection<Parent> {
 
     private class InstallableTypeExposingAndBinding<Type>
     extends TypeExposingAndBinding<Type, ModuleBuilder<Parent>>
-    implements Installable<PrivateBinder> { // not part of the DSL!
+    implements Configuration<PrivateBinder> { // not part of the DSL!
         @Override public ModuleBuilder<Parent> inject() {
             return addExposing(this);
         }
 
-        @Override public void installTo(PrivateBinder binder) {
+        @Override public void configure(PrivateBinder binder) {
             super.installTo(binder);
         }
     }
@@ -45,18 +45,18 @@ implements Builder<Module>, Injection<Parent> {
 
     private class InstallableTypeExposing<Type>
     extends TypeExposing<Type, ModuleBuilder<Parent>>
-    implements Installable<PrivateBinder> { // not part of the DSL!
+    implements Configuration<PrivateBinder> { // not part of the DSL!
         @Override public ModuleBuilder<Parent> inject() {
             return addExposing(this);
         }
 
-        @Override public void installTo(PrivateBinder binder) {
+        @Override public void configure(PrivateBinder binder) {
             super.installTo(binder);
         }
     }
 
     ModuleBuilder<Parent> addExposing(
-            final Installable<PrivateBinder> exposing) {
+            final Configuration<PrivateBinder> exposing) {
         exposings.add(exposing);
         return this;
     }
@@ -68,12 +68,12 @@ implements Builder<Module>, Injection<Parent> {
 
     private class InstallableTypeBinding<Type>
     extends TypeBinding<Type, ModuleBuilder<Parent>>
-    implements Installable<Binder> { // not part of the DSL!
+    implements Configuration<Binder> { // not part of the DSL!
         @Override public ModuleBuilder<Parent> inject() {
             return addBinding(this);
         }
 
-        @Override public void installTo(Binder binder) {
+        @Override public void configure(Binder binder) {
             super.installTo(binder);
         }
     }
@@ -84,23 +84,23 @@ implements Builder<Module>, Injection<Parent> {
 
     private class InstallableConstantBinding<Type>
     extends ConstantBinding<Type, ModuleBuilder<Parent>>
-    implements Installable<Binder> { // not part of the DSL!
+    implements Configuration<Binder> { // not part of the DSL!
         @Override public ModuleBuilder<Parent> inject() {
             return addBinding(this);
         }
 
-        @Override public void installTo(Binder binder) {
+        @Override public void configure(Binder binder) {
             super.installTo(binder);
         }
     }
 
-    ModuleBuilder<Parent> addBinding(final Installable<Binder> binding) {
+    ModuleBuilder<Parent> addBinding(final Configuration<Binder> binding) {
         bindings.add(binding);
         return this;
     }
 
     @Override public Module build() {
-        final List<Installable<PrivateBinder>> exposings = swapExposings();
+        final List<Configuration<PrivateBinder>> exposings = swapExposings();
         if (exposings.isEmpty()) {
             return new AbstractModule() {
                 @Override protected void configure() { installTo(binder()); }
@@ -109,8 +109,8 @@ implements Builder<Module>, Injection<Parent> {
             return new PrivateModule() {
                 @Override protected void configure() {
                     final PrivateBinder binder = binder();
-                    for (Installable<PrivateBinder> exposing : exposings)
-                        exposing.installTo(binder);
+                    for (Configuration<PrivateBinder> exposing : exposings)
+                        exposing.configure(binder);
                     installTo(binder);
                 }
             };
@@ -118,20 +118,20 @@ implements Builder<Module>, Injection<Parent> {
     }
 
     void installTo(final Binder binder) {
-        for (Installable<Binder> binding : swapBindings())
-            binding.installTo(binder);
+        for (Configuration<Binder> binding : swapBindings())
+            binding.configure(binder);
         for (Module module : swapModules())
             binder.install(module);
     }
 
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
-    List<Installable<PrivateBinder>> swapExposings() {
+    List<Configuration<PrivateBinder>> swapExposings() {
         try { return this.exposings; }
         finally { this.exposings = emptyList(); }
     }
 
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
-    List<Installable<Binder>> swapBindings() {
+    List<Configuration<Binder>> swapBindings() {
         try { return this.bindings; }
         finally { this.bindings = emptyList(); }
     }

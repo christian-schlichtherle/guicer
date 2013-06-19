@@ -12,6 +12,6 @@ package net.java.guicer;
  *         item.
  * @author Christian Schlichtherle
  */
-interface Installable<Target> {
-    void installTo(Target binder);
+interface Configuration<Target> {
+    void configure(Target target);
 }
