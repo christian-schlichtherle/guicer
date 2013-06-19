@@ -147,6 +147,20 @@ an existing module:
 This vehicle should be used whenever you want to use a Guice feature which is
 not yet supported in the Guicer DSL.
 
+$h3 Building Modules
+
+You can use the Guicer DSL to build modules for use with the original Guice
+DSL, too:
+
+    Module module = new GuiceContext()
+            .injector()
+                .module()
+                    .build();
+
+Note that the `module()` declaration ends with `build()` instruction instead
+of the usual `inject()`.
+This instructs the module builder to build and return the module.
+
 $h2 Configuring Modules
 
 So far, the module configurations built with the Guicer DSL were empty,
