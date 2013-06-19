@@ -32,6 +32,16 @@
         <tag>HEAD</tag>
     </scm>
 
+    <distributionManagement>
+        <site>
+            <id>guicer-website</id>
+            <name>Guicer Website</name>
+            <!-- DON'T use ${project.groupId}, ${project.artifactId} here.
+                 This would change in sub-modules! -->
+            <url>file://${env.HOME}/sites/net.java.guicer/</url>
+        </site>
+    </distributionManagement>
+
     <properties>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
