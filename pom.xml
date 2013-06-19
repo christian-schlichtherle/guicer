@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Copyright (C) 2013 Schlichtherle IT Services.
+  - All rights reserved. Use is subject to license terms.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.java.truecommons</groupId>
+        <artifactId>truecommons-parent</artifactId>
+        <version>48</version>
+    </parent>
+
+    <groupId>net.java.guicer</groupId>
+    <artifactId>guicer</artifactId>
+    <version>0.1-SNAPSHOT</version>
+
+    <name>Guicer</name>
+    <url>https://github.com/christian-schlichtherle/guicer</url>
+    <licenses>
+        <license>
+            <name>Eclipse Public License, Version 1.0</name>
+            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+        </license>
+    </licenses>
+    <scm>
+        <developerConnection>scm:git:git@github.com:christian-schlichtherle/guicer.git</developerConnection>
+        <url>https://github.com/christian-schlichtherle/guicer</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
+        </dependency>
+    </dependencies>
+</project>

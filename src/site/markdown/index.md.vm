@@ -1,0 +1,293 @@
+#set($h1 = '##')
+#set($h2 = '###')
+#set($h3 = '####')
+#set($h4 = '#####')
+<head>
+    <title>The Guicer DSL</title>
+</head>
+
+$h1 The Guicer DSL
+
+$h2 Abstract
+
+Guicer is an alternative Domain Specific Language (DSL) for configuring Guice
+injectors which is simpler and more concise than the original Guice DSL.
+This article provides a brief introduction to the Guicer DSL.
+
+$h2 Overview
+
+The Guicer DSL uses simple method chaining for configuring a Guice
+[`Injector`][Injector API] with modules and bindings.
+It does not require you to implement or subclass anything (e.g. a Module).
+
+The Guicer DSL supports...
+
++ sub-smodules,
++ private-modules,
++ annotated bindings,
++ bindings for classes and
++ bindings for constants.
+
+The Guicer DSL doesn't yet support...
+
++ scoped bindings,
++ bindings for type literals or
++ `@Provides` methods.
+
+For everything which isn't supported yet, you can add custom modules to the
+Guice injector via the Guicer DSL, so that you can exploit Guice to the fullest.
+
+> If you like to add support for a specific feature to the Guicer DSL, I
+> welcome pull requests.
+> Please note that to be acceptable, the changes/extensions in the pull request
+> need to maintain the general concept of method chaining because this is what
+> sets the Guicer DSL apart from the original Guice DSL.
+
+$h2 Prerequisites
+
+You need Java SE 6 and Maven 3.0.4 or higher to use this project.
+Furthermore, you need to checkout the [source code repository] and build the
+project yourself because the artifacts are not yet available on Maven Central.
+
+$h2 Your First Configuration
+
+The following class creates a minimally configured Guice injector with the
+Guicer DSL:
+
+    package de.schlichtherle.demo.guice;
+
+    import com.google.inject.Injector;
+    import de.schlichtherle.demo.guice.guicer.GuiceContext;
+
+    public class Bootstrap {
+
+        private final Injector injector = new GuiceContext()
+                .injector()
+                    .build();
+
+        ...
+    }
+
+With the Guicer DSL, you start by creating a new `GuiceContext`.
+In fact, this is the only `import` and the only `new` statement you need with
+the Guicer DSL.
+Everything else gets configured via method chaining / drilling down from the
+`GuiceContex`.
+
+After creating the `GuiceContext`, you need to call `injector()` in order to
+create a builder for a Guice `Injector`.
+When you are done with using the builder, you need to call `build()` in order
+to obtain the configured `Injector`.
+
+$h2 Adding Modules
+
+In the previous example, the configuration is empty and so you couldn't use the
+configured injector to do many useful things.
+Let's start adding a module to the injector:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    .inject()
+                .build();
+
+The call to `module()` creates an injection for a Guice `Module`.
+When you are done with using the injection, you need to call `inject()` in
+order to make it inject the configured `Module` into the builder for the
+`Injector`.
+
+$h3 Adding Sub-Modules
+
+This is a recursive pattern, so you can add modules to modules like this:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    .module()
+                        .inject()
+                    .inject()
+                .build();
+
+Think of the call to `inject()` as a closing brace which returns control to the
+parent scope.
+If you know XML, this should be familiar to you.
+In XML, the preceeding code could have been expressed like this:
+
+    <injector>
+        <module>
+            <module>
+            </module>
+        </module>
+    </injector>
+
+As you can see, `inject()` and `build()` in the Guicer DSL are the equivalent
+to `</module>` and `</injector>` in XML.
+I prefer to have `inject()` and `build()` indented one level more, however.
+Of course, this is a matter of style and you might as well write this:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    .module()
+                    .inject()
+                .inject()
+            .build();
+
+$h3 Adding Existing Modules
+
+Instead of configuring a module in the Guicer DSL, you can also tell it to use
+an existing module:
+
+    Module myModule = ...
+    Injector injector = new GuiceContext()
+            .injector()
+                .module(myModule)
+                .build();
+
+This vehicle should be used whenever you want to use a Guice feature which is
+not yet supported in the Guicer DSL.
+
+$h2 Configuring Modules
+
+So far, the module configurations built with the Guicer DSL were empty,
+so the configured `Injector` won't do many useful things.
+Let's start adding a binding for a class to the module configuration:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    .bind(Printer.class)
+                        .to(TeePrinter.class)
+                        .inject()
+                    .inject()
+                .build();
+
+This binds the `Printer` interface to the `TeePrinter` implementation class.
+
+$h3 Configuring Private Modules
+
+A `TeePrinter` needs a primary and secondary `Printer` injected.
+In Guice, you need to configure two instances of the `PrivateModule` class in
+order to do this.
+With the Guicer DSL, this is straightforward:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    .bind(Printer.class)
+                        .to(TeePrinter.class)
+                        .inject()
+                    .module()
+                        .exposeAndBind(Printer.class)
+                            .annotatedWith(named("primary"))
+                            .to(BanneredPrinter.class)
+                            .inject()
+                        ...
+                        .inject()
+                    .module()
+                        .exposeAndBind(Printer.class)
+                            .annotatedWith(named("secondary"))
+                            .to(BanneredPrinter.class)
+                            .inject()
+                         ...
+                        .inject()
+                    .inject()
+                ...
+                .build();
+
+By calling `exposeAndBind(Printer.class)` I tell the module builder to build a
+`PrivateModule` instead of an `AbstractModule`.
+The private module will have the specified binding and expose its type.
+
+Calling `exposeAndBind(Class<?>)` is a shorthand expression for:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    .bind(Printer.class)
+                        .to(TeePrinter.class)
+                        .inject()
+                    .module()
+                        .expose(Printer.class)
+                            .annotatedWith(named("primary"))
+                            .inject()
+                        .bind(Printer.class)
+                            .annotatedWith(named("primary"))
+                            .to(BanneredPrinter.class)
+                            .inject()
+                        ...
+                        .inject()
+                    .module()
+                        .expose(Printer.class)
+                            .annotatedWith(named("secondary"))
+                            .inject()
+                        .bind(Printer.class)
+                            .annotatedWith(named("secondary"))
+                            .to(BanneredPrinter.class)
+                            .inject()
+                         ...
+                        .inject()
+                    .inject()
+                ...
+                .build();
+
+This feature not only saves some lines of code, it also eliminates a point of
+failure because the generated exposing and binding will always match.
+
+$h3 Qualifying Bindings With Annotations
+
+In the previous example, I've also added calls to `annotatedWith(named(...))`
+in order to disambiguate between the primary and secondary printer for the
+`TeePrinter`.
+The `named(String)` function is a static import from
+`com.google.inject.name.Names` which creates an annotation which is comparable
+to the annotation type `javax.inject.Named`.
+With the given parameters, I specifically ask for an injection point of the
+type `Printer` which is respectively annotated with `@Named("primary")` or
+`@Named("secondary")`.
+
+$h3 Binding Constants
+
+The secondary printer in the previous example needs a boolean parameter further
+down its decorator chain.
+You can use the same syntax as with the original Guice DSL to configure this.
+Here's the complete configuration for the secondary printer, including the
+constant binding:
+
+    Injector injector = new GuiceContext()
+            .injector()
+                .module()
+                    ...
+                    .module()
+                        .exposeAndBind(Printer.class)
+                            .annotatedWith(named("secondary"))
+                            .to(BanneredPrinter.class)
+                            .inject()
+                        .bind(Printer.class)
+                            .annotatedWith(context(BanneredPrinter.class))
+                            .to(CheckedPrinter.class)
+                            .inject()
+                        .bind(Printer.class)
+                            .annotatedWith(context(CheckedPrinter.class))
+                            .to(FilePrinter.class)
+                            .inject()
+                        .bind(File.class)
+                            .annotatedWith(context(FilePrinter.class))
+                            .toInstance(new File("print.log"))
+                            .inject()
+                        .bindConstant()
+                            .annotatedWith(named("append"))
+                            .to(true)
+                            .inject()
+                        .inject()
+                    .inject()
+                .build();
+
+The sub-module exposes a binding for `Printer` to a `BanneredPrinter` with a
+`CheckedPrinter` and a `FilePrinter` as their respective delegates.
+The `FilePrinter` will append its output to the file named `print.log` in the
+current directory.
+
+[Guice]: http://code.google.com/p/google-guice/
+[Source Code Repository]: http://github.com/christian-schlichtherle/guicer
+[Injector API]: http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Injector.html
