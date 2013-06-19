@@ -167,6 +167,10 @@ So far, the module configurations built with the Guicer DSL were empty,
 so the configured `Injector` won't do many useful things.
 Let's start adding a binding for a class to the module configuration:
 
+> The following code samples depend on the Guice Demo project on GitHub.
+> Please check out the branch `guicer` of its
+> [source code repository][Guice Demo] if you need a working sample.
+
     Injector injector = new GuiceContext()
             .injector()
                 .module()
@@ -303,5 +307,6 @@ The `FilePrinter` will append its output to the file named `print.log` in the
 current directory.
 
 [Guice]: http://code.google.com/p/google-guice/
-[Source Code Repository]: http://github.com/christian-schlichtherle/guicer
+[Guice Demo]: http://github.com/christian-schlichtherle/guice-demo
 [Injector API]: http://google-guice.googlecode.com/svn/tags/3.0/javadoc/com/google/inject/Injector.html
+[Source Code Repository]: http://github.com/christian-schlichtherle/guicer

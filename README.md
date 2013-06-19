@@ -6,8 +6,8 @@ injectors which is simpler and more concise than the original Guice DSL.
 ## Documentation
 
 An introduction to the Guicer DSL is available at <https://guicer.java.net>.
-This page also contains information about how to communicate with the project
-author / team via email or an issue tracker.
+This page also contains information about how to contact the project
+author / team.
 
 ## Building
 
@@ -43,6 +43,6 @@ There really should be an official release to Maven Central soon.
 
 This project is covered by the [Eclipse Software License, Version 1.0][ESL-1.0].
 
+[ESL-1.0]: http://www.eclipse.org/legal/epl-v10.html
 [Guice]: http://code.google.com/p/google-guice/
 [Source Code Repository]: http://github.com/christian-schlichtherle/guicer
-[ESL-1.0]: http://www.eclipse.org/legal/epl-v10.html
