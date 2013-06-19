@@ -29,6 +29,10 @@ or add a dependency in your own project like this:
         </dependencies>
     </project>
 
+Note that if you do this, then your project depends on the snapshot build in
+your local Maven repository.
+There really should be an official release to Maven Central soon.
+
 ## License
 
 This project is covered by the [Eclipse Software License, Version 1.0][ESL-1.0].
