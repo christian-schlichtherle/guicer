@@ -23,7 +23,7 @@ or add a dependency in your own project like this:
             <dependency>
                 <groupId>net.java.guicer</groupId>
                 <artifact>guicer</artifact>
-                <version>LATEST</version>
+                <version>${project.version}</version>
             </dependency>
             ...
         </dependencies>
