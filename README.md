@@ -3,6 +3,12 @@
 Guicer is an alternative Domain Specific Language (DSL) for configuring Guice
 injectors which is simpler and more concise than the original Guice DSL.
 
+## Documentation
+
+An introduction to the Guicer DSL is available at <https://guicer.java.net>.
+This page also contains information about how to communicate with the project
+author / team via email or an issue tracker.
+
 ## Building
 
 Guicer is built with Apache Maven.
