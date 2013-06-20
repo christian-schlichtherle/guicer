@@ -25,13 +25,13 @@ The Guicer DSL supports...
 + sub-smodules,
 + private-modules,
 + annotated bindings,
-+ bindings for classes and
-+ bindings for constants.
++ bindings for classes,
++ bindings for type literals,
++ bindings for constants and
++ scoped bindings.
 
 The Guicer DSL doesn't yet support...
 
-+ scoped bindings,
-+ bindings for type literals or
 + `@Provides` methods.
 
 For everything which isn't supported yet, you can add custom modules to the
