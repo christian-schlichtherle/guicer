@@ -4,9 +4,10 @@
  */
 package net.java.guicer;
 
-import com.google.inject.Injector;
+import com.google.inject.*;
 import static com.google.inject.name.Names.named;
-import javax.inject.*;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -16,8 +17,8 @@ import static org.junit.Assert.*;
 public class ModuleBuilderTest {
 
     @Test
-    public void testConfiguration() {
-        final Injector injector = new GuiceContext()
+    public void testGuicerDSL() {
+        assertInjector(new GuiceContext()
                 .injector()
                     .module()
                         .bind(Bar.class)
@@ -29,7 +30,20 @@ public class ModuleBuilderTest {
                             .to(FooImpl.class)
                             .inject()
                         .inject()
-                    .build();
+                    .build());
+    }
+
+    @Test
+    public void testGuiceDSL() {
+        assertInjector(Guice.createInjector(new AbstractModule() {
+            @Override protected void configure() {
+                bind(Bar.class).to(BarImpl.class).in(Singleton.class);
+                bind(Foo.class).annotatedWith(named("foo")).to(FooImpl.class);
+            }
+        }));
+    }
+
+    private void assertInjector(final Injector injector) {
         final Bar bar1 = injector.getInstance(Bar.class);
         final Bar bar2 = injector.getInstance(Bar.class);
         assertSame(bar1, bar2);

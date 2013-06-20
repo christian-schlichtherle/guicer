@@ -13,5 +13,5 @@ package net.java.guicer;
  * @author Christian Schlichtherle
  */
 interface Configuration<Target> {
-    void configure(Target target);
+    Object configure(Target target);
 }
