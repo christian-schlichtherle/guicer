@@ -9,7 +9,7 @@
       @import url("./css/site.css");
     </style>
     <link rel="stylesheet" href="./css/print.css" type="text/css" media="print"/>
-    <meta name="Date-Revision-yyyymmdd" content="20130619"/>
+    <meta name="Date-Revision-yyyymmdd" content="20130620"/>
     <meta http-equiv="Content-Language" content="en"/>
                     
   </head>
@@ -23,7 +23,7 @@
     <div id="breadcrumbs">
             
                                   <div class="xleft">
-        <span id="projectVersion">Version: 0.1-SNAPSHOT</span>
+        <span id="projectVersion">Version: 0.2-SNAPSHOT</span>
                   |                         <a href="index.html" title="Guicer">Guicer</a>
       &raquo;
           The Guicer DSL
@@ -115,17 +115,17 @@
   
 <li>annotated bindings,</li>
   
-<li>bindings for classes and</li>
+<li>bindings for classes,</li>
   
-<li>bindings for constants.</li>
+<li>bindings for type literals,</li>
+  
+<li>bindings for constants and</li>
+  
+<li>scoped bindings.</li>
 </ul>
 <p>The Guicer DSL doesn&#x2019;t yet support&#x2026;</p>
 
 <ul>
-  
-<li>scoped bindings,</li>
-  
-<li>bindings for type literals or</li>
   
 <li><tt>@Provides</tt> methods.</li>
 </ul>
@@ -230,6 +230,10 @@ Injector injector = new GuiceContext()
 <div class="section">
 <h3>Configuring Modules<a name="Configuring_Modules"></a></h3>
 <p>So far, the module configurations built with the Guicer DSL were empty, so the configured <tt>Injector</tt> won&#x2019;t do many useful things. Let&#x2019;s start adding a binding for a class to the module configuration:</p>
+
+<blockquote>
+<p>The following code samples depend on the Guice Demo project on GitHub. Please check out the branch <tt>guicer</tt> of its <a class="externalLink" href="http://github.com/christian-schlichtherle/guice-demo">source code repository</a> if you need a working sample.</p>
+</blockquote>
 
 <div class="source">
 <pre>Injector injector = new GuiceContext()
@@ -352,10 +356,9 @@ Injector injector = new GuiceContext()
               Copyright &#169;                    2013
                         <a href="http://schlichtherle.de">Schlichtherle IT Services</a>.
             All Rights Reserved.      
-                                   <span id="publishDate">Last Published: 2013-06-19</span>
+                                   <span id="publishDate">Last Published: 2013-06-20</span>
                         </div>
       <div class="clear"><hr/></div>
     </div>
   </body>
 </html>
-
