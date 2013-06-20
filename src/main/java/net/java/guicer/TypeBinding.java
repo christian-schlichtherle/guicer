@@ -5,6 +5,7 @@
 package net.java.guicer;
 
 import com.google.inject.*;
+import java.lang.annotation.Annotation;
 
 /**
  * A declaration of a binding for a type in a {@link Module}.
@@ -18,8 +19,9 @@ public abstract class TypeBinding<Type, Parent>
 extends Bindable<TypeBinding<Type, Parent>, Type>
 implements Injection<Parent> {
 
-    Class<? extends Type> implementation;
-    Type instance;
+    private Class<? extends Type> implementation;
+    private Type instance;
+    private Class<? extends Annotation> scopeAnnotation;
 
     public TypeBinding<Type, Parent> to(final Class<? extends Type> implementation) {
         this.implementation = implementation;
@@ -31,18 +33,45 @@ implements Injection<Parent> {
         return this;
     }
 
+    public TypeBinding<Type, Parent> in(final Class<? extends Annotation> scopeAnnotation) {
+        this.scopeAnnotation = scopeAnnotation;
+        return this;
+    }
+
     void installTo(final Binder binder) {
         if (null == instance) {
-            if (null == annotation)
-                binder.bind(type).to(implementation);
-            else
-                binder.bind(type).annotatedWith(annotation).to(implementation);
+            if (null == annotation) {
+                if (null == scopeAnnotation) {
+                    binder  .bind(type)
+                            .to(implementation);
+                } else {
+                    binder  .bind(type)
+                            .to(implementation)
+                            .in(scopeAnnotation);
+                }
+            } else {
+                if (null == scopeAnnotation) {
+                    binder  .bind(type)
+                            .annotatedWith(annotation)
+                            .to(implementation);
+                } else {
+                    binder  .bind(type)
+                            .annotatedWith(annotation)
+                            .to(implementation)
+                            .in(scopeAnnotation);
+                }
+            }
         } else {
             if (null != implementation) throw new IllegalStateException();
-            if (null == annotation)
-                binder.bind(type).toInstance(instance);
-            else
-                binder.bind(type).annotatedWith(annotation).toInstance(instance);
+            if (null != scopeAnnotation) throw new IllegalStateException();
+            if (null == annotation) {
+                binder  .bind(type)
+                        .toInstance(instance);
+            } else {
+                binder  .bind(type)
+                        .annotatedWith(annotation)
+                        .toInstance(instance);
+            }
         }
     }
 }
