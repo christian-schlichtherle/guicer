@@ -31,7 +31,7 @@ implements Builder<Module>, Injection<Parent> {
 
     public <Type> AnnotatedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> exposeAndBind(
             final Class<Type> clazz) {
-        return new AnnotatedConfiguration<Type>() {
+        return new AnnotatedBindingConfiguration<Type>() {
             @Override void add(Configuration<?> configuration) {
                 addExposing(configuration);
                 addBinding(configuration);
@@ -43,6 +43,43 @@ implements Builder<Module>, Injection<Parent> {
 
             @Override public AnnotatedBindingBuilder<Type> bind(Binder binder) {
                 return binder.bind(clazz);
+            }
+        };
+    }
+
+    public <Type> LinkedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> exposeAndBind(
+            final Key<Type> key) {
+        return new LinkedBindingConfiguration<Type, Configuration<?>>() {
+            @Override void add(Configuration<?> configuration) {
+                addExposing(configuration);
+                addBinding(configuration);
+            }
+
+            @Override public Void expose(PrivateBinder binder) {
+                binder.expose(key);
+                return null;
+            }
+
+            @Override public LinkedBindingBuilder<Type> bind(Binder binder) {
+                return binder.bind(key);
+            }
+        };
+    }
+
+    public <Type> AnnotatedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> exposeAndBind(
+            final TypeLiteral<Type> literal) {
+        return new AnnotatedBindingConfiguration<Type>() {
+            @Override void add(Configuration<?> configuration) {
+                addExposing(configuration);
+                addBinding(configuration);
+            }
+
+            @Override public AnnotatedElementBuilder expose(PrivateBinder binder) {
+                return binder.expose(literal);
+            }
+
+            @Override public AnnotatedBindingBuilder<Type> bind(Binder binder) {
+                return binder.bind(literal);
             }
         };
     }
@@ -60,11 +97,38 @@ implements Builder<Module>, Injection<Parent> {
         };
     }
 
+    public Injection<ModuleBuilder<Parent>> expose(
+            final Key<?> key) {
+        return new Configuration<Configuration<?>>() {
+            @Override void add(Configuration<?> configuration) {
+                addExposing(configuration);
+            }
+
+            @Override public Void expose(PrivateBinder binder) {
+                binder.expose(key);
+                return null;
+            }
+        };
+    }
+
+    public AnnotatedElementBuilderWithInjection<ModuleBuilder<Parent>> expose(
+            final TypeLiteral<?> literal) {
+        return new AnnotatedElementConfiguration<Configuration<?>>() {
+            @Override void add(Configuration<?> configuration) {
+                addExposing(configuration);
+            }
+
+            @Override public AnnotatedElementBuilder expose(PrivateBinder binder) {
+                return binder.expose(literal);
+            }
+        };
+    }
+
     void addExposing(Configuration<?> exposing) { exposings.add(exposing); }
 
     public <Type> AnnotatedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> bind(
             final Class<Type> clazz) {
-        return new AnnotatedConfiguration<Type>() {
+        return new AnnotatedBindingConfiguration<Type>() {
             @Override void add(Configuration<?> configuration) {
                 addBinding(configuration);
             }
@@ -75,8 +139,34 @@ implements Builder<Module>, Injection<Parent> {
         };
     }
 
+    public <Type> LinkedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> bind(
+            final Key<Type> key) {
+        return new LinkedBindingConfiguration<Type, Configuration<?>>() {
+            @Override void add(Configuration<?> configuration) {
+                addBinding(configuration);
+            }
+
+            @Override public LinkedBindingBuilder<Type> bind(Binder binder) {
+                return binder.bind(key);
+            }
+        };
+    }
+
+    public <Type> AnnotatedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> bind(
+            final TypeLiteral<Type> literal) {
+        return new AnnotatedBindingConfiguration<Type>() {
+            @Override void add(Configuration<?> configuration) {
+                addBinding(configuration);
+            }
+
+            @Override public AnnotatedBindingBuilder<Type> bind(Binder binder) {
+                return binder.bind(literal);
+            }
+        };
+    }
+
     public AnnotatedConstantBindingBuilderWithInjection<ModuleBuilder<Parent>> bindConstant() {
-        return new AnnotatedConstantConfiguration() {
+        return new AnnotatedConstantBindingConfiguration() {
             @Override void add(Configuration<?> configuration) {
                 addBinding(configuration);
             }
@@ -134,7 +224,7 @@ implements Builder<Module>, Injection<Parent> {
 
         @Override public final Injection<ModuleBuilder<Parent>> annotatedWith(
                 final Class<? extends Annotation> annotationType) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void expose(PrivateBinder binder) {
                     parentExpose(binder).annotatedWith(annotationType);
                     return null;
@@ -144,7 +234,7 @@ implements Builder<Module>, Injection<Parent> {
 
         @Override public final Injection<ModuleBuilder<Parent>> annotatedWith(
                 final Annotation annotation) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void expose(PrivateBinder binder) {
                     parentExpose(binder).annotatedWith(annotation);
                     return null;
@@ -152,7 +242,7 @@ implements Builder<Module>, Injection<Parent> {
             };
         }
 
-        private abstract class Child
+        private abstract class ChildConfiguration
         extends Configuration<AnnotatedElementConfiguration<ConfigurationParent>> {
             final AnnotatedElementBuilder parentExpose(PrivateBinder binder) {
                 return parent().expose(binder);
@@ -164,8 +254,8 @@ implements Builder<Module>, Injection<Parent> {
         }
     }
 
-    private abstract class AnnotatedConfiguration<Type>
-    extends LinkedConfiguration<Type, Configuration<?>>
+    private abstract class AnnotatedBindingConfiguration<Type>
+    extends LinkedBindingConfiguration<Type, Configuration<?>>
     implements AnnotatedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> {
 
         @Override AnnotatedElementBuilder expose(PrivateBinder binder) {
@@ -177,7 +267,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final LinkedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> annotatedWith(
                 final Class<? extends Annotation> annotationType) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void expose(PrivateBinder binder) {
                     parentExpose(binder).annotatedWith(annotationType);
                     return null;
@@ -192,7 +282,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final LinkedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> annotatedWith(
                 final Annotation annotation) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void expose(PrivateBinder binder) {
                     parentExpose(binder).annotatedWith(annotation);
                     return null;
@@ -204,8 +294,8 @@ implements Builder<Module>, Injection<Parent> {
             };
         }
 
-        private abstract class Child
-        extends LinkedConfiguration<Type, AnnotatedConfiguration<Type>> {
+        private abstract class ChildConfiguration
+        extends LinkedBindingConfiguration<Type, AnnotatedBindingConfiguration<Type>> {
             final AnnotatedElementBuilder parentExpose(PrivateBinder binder) {
                 return parent().expose(binder);
             }
@@ -214,20 +304,21 @@ implements Builder<Module>, Injection<Parent> {
                 return parent().bind(binder);
             }
 
-            @Override final AnnotatedConfiguration<Type> parent() {
-                return AnnotatedConfiguration.this;
+            @Override final AnnotatedBindingConfiguration<Type> parent() {
+                return AnnotatedBindingConfiguration.this;
             }
         }
     }
 
-    private abstract class LinkedConfiguration<Type, ConfigurationParent extends Configuration<?>>
-    extends ScopedConfiguration<ConfigurationParent>
+    private abstract class LinkedBindingConfiguration<Type, ConfigurationParent extends Configuration<?>>
+    extends ScopedBindingConfiguration<ConfigurationParent>
     implements LinkedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> {
+
         @Override abstract LinkedBindingBuilder<Type> bind(Binder binder);
 
         @Override public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> to(
                 final Class<? extends Type> implementation) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).to(implementation);
                 }
@@ -237,7 +328,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> to(
                 final TypeLiteral<? extends Type> implementation) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).to(implementation);
                 }
@@ -247,7 +338,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> to(
                 final Key<? extends Type> targetKey) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).to(targetKey);
                 }
@@ -257,9 +348,9 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final Injection<ModuleBuilder<Parent>> toInstance(
                 final Type instance) {
-            return new Configuration<LinkedConfiguration<Type, ConfigurationParent>>() {
-                @Override final LinkedConfiguration<Type, ConfigurationParent> parent() {
-                    return LinkedConfiguration.this;
+            return new Configuration<LinkedBindingConfiguration<Type, ConfigurationParent>>() {
+                @Override final LinkedBindingConfiguration<Type, ConfigurationParent> parent() {
+                    return LinkedBindingConfiguration.this;
                 }
 
                 @Override Void expose(PrivateBinder binder) {
@@ -277,7 +368,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> toProvider(
                 final Provider<? extends Type> provider) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).toProvider(provider);
                 }
@@ -287,7 +378,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> toProvider(
                 final Class<? extends javax.inject.Provider<? extends Type>> providerType) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).toProvider(providerType);
                 }
@@ -297,7 +388,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> toProvider(
                 final TypeLiteral<? extends javax.inject.Provider<? extends Type>> providerType) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).toProvider(providerType);
                 }
@@ -307,7 +398,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> toProvider(
                 final Key<? extends javax.inject.Provider<? extends Type>> providerKey) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).toProvider(providerKey);
                 }
@@ -317,7 +408,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final <S extends Type> ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> toConstructor(
                 final Constructor<S> constructor) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).toConstructor(constructor);
                 }
@@ -328,15 +419,15 @@ implements Builder<Module>, Injection<Parent> {
         public final <S extends Type> ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> toConstructor(
                 final Constructor<S> constructor,
                 final TypeLiteral<? extends S> type) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ScopedBindingBuilder bind(Binder binder) {
                     return parentBind(binder).toConstructor(constructor, type);
                 }
             };
         }
 
-        private abstract class Child
-        extends ScopedConfiguration<ScopedConfiguration<ConfigurationParent>> {
+        private abstract class ChildConfiguration
+        extends ScopedBindingConfiguration<ScopedBindingConfiguration<ConfigurationParent>> {
             @Override final Void expose(PrivateBinder binder) {
                 parent().expose(binder);
                 return null;
@@ -346,13 +437,13 @@ implements Builder<Module>, Injection<Parent> {
                 return parent().bind(binder);
             }
 
-            @Override final LinkedConfiguration<Type, ConfigurationParent> parent() {
-                return LinkedConfiguration.this;
+            @Override final LinkedBindingConfiguration<Type, ConfigurationParent> parent() {
+                return LinkedBindingConfiguration.this;
             }
         }
     }
 
-    private abstract class ScopedConfiguration<ConfigurationParent extends Configuration<?>>
+    private abstract class ScopedBindingConfiguration<ConfigurationParent extends Configuration<?>>
     extends Configuration<ConfigurationParent>
     implements ScopedBindingBuilderWithInjection<ModuleBuilder<Parent>> {
 
@@ -361,7 +452,7 @@ implements Builder<Module>, Injection<Parent> {
         @Override
         public final Injection<ModuleBuilder<Parent>> in(
                 final Class<? extends Annotation> scopeAnnotation) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).in(scopeAnnotation);
                     return null;
@@ -371,7 +462,7 @@ implements Builder<Module>, Injection<Parent> {
 
         @Override
         public final Injection<ModuleBuilder<Parent>> in(final Scope scope) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).in(scope);
                     return null;
@@ -381,7 +472,7 @@ implements Builder<Module>, Injection<Parent> {
 
         @Override
         public final Injection<ModuleBuilder<Parent>> asEagerSingleton() {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).asEagerSingleton();
                     return null;
@@ -389,8 +480,8 @@ implements Builder<Module>, Injection<Parent> {
             };
         }
 
-        private abstract class Child
-        extends Configuration<ScopedConfiguration<ConfigurationParent>> {
+        private abstract class ChildConfiguration
+        extends Configuration<ScopedBindingConfiguration<ConfigurationParent>> {
             @Override final Void expose(PrivateBinder binder) {
                 parent().expose(binder);
                 return null;
@@ -400,20 +491,21 @@ implements Builder<Module>, Injection<Parent> {
                 return parent().bind(binder);
             }
 
-            @Override final ScopedConfiguration<ConfigurationParent> parent() {
-                return ScopedConfiguration.this;
+            @Override final ScopedBindingConfiguration<ConfigurationParent> parent() {
+                return ScopedBindingConfiguration.this;
             }
         }
     }
 
-    private abstract class AnnotatedConstantConfiguration
+    private abstract class AnnotatedConstantBindingConfiguration
     extends Configuration<Configuration<?>>
     implements AnnotatedConstantBindingBuilderWithInjection<ModuleBuilder<Parent>> {
+
         @Override abstract AnnotatedConstantBindingBuilder bind(Binder binder);
 
         @Override public final ConstantBindingBuilderWithInjection<ModuleBuilder<Parent>> annotatedWith(
             final Class<? extends Annotation> annotationType) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ConstantBindingBuilder bind(Binder binder) {
                     return parentBind(binder).annotatedWith(annotationType);
                 }
@@ -422,33 +514,33 @@ implements Builder<Module>, Injection<Parent> {
 
         @Override public final ConstantBindingBuilderWithInjection<ModuleBuilder<Parent>> annotatedWith(
                 final Annotation annotation) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override ConstantBindingBuilder bind(Binder binder) {
                     return parentBind(binder).annotatedWith(annotation);
                 }
             };
         }
 
-        private abstract class Child
-        extends ConstantConfiguration<AnnotatedConstantConfiguration> {
+        private abstract class ChildConfiguration
+        extends ConstantBindingConfiguration<AnnotatedConstantBindingConfiguration> {
             final AnnotatedConstantBindingBuilder parentBind(Binder binder) {
                 return parent().bind(binder);
             }
 
-            @Override final AnnotatedConstantConfiguration parent() {
-                return AnnotatedConstantConfiguration.this;
+            @Override final AnnotatedConstantBindingConfiguration parent() {
+                return AnnotatedConstantBindingConfiguration.this;
             }
         }
     }
 
-    private abstract class ConstantConfiguration<ConfigurationParent extends Configuration<?>>
+    private abstract class ConstantBindingConfiguration<ConfigurationParent extends Configuration<?>>
     extends Configuration<ConfigurationParent>
     implements ConstantBindingBuilderWithInjection<ModuleBuilder<Parent>> {
 
         @Override abstract ConstantBindingBuilder bind(Binder binder);
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final String value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -457,7 +549,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final int value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -466,7 +558,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final long value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -475,7 +567,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final boolean value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -484,7 +576,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final double value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -493,7 +585,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final float value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -502,7 +594,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final short value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -511,7 +603,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final char value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -520,7 +612,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final byte value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -529,7 +621,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final Injection<ModuleBuilder<Parent>> to(final Class<?> value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -538,7 +630,7 @@ implements Builder<Module>, Injection<Parent> {
         }
 
         @Override public final <E extends Enum<E>> Injection<ModuleBuilder<Parent>> to(final E value) {
-            return new Child() {
+            return new ChildConfiguration() {
                 @Override Void bind(Binder binder) {
                     parentBind(binder).to(value);
                     return null;
@@ -546,14 +638,14 @@ implements Builder<Module>, Injection<Parent> {
             };
         }
 
-        private abstract class Child
-        extends Configuration<ConstantConfiguration<ConfigurationParent>> {
+        private abstract class ChildConfiguration
+        extends Configuration<ConstantBindingConfiguration<ConfigurationParent>> {
             final ConstantBindingBuilder parentBind(Binder binder) {
                 return parent().bind(binder);
             }
 
-            @Override final ConstantConfiguration<ConfigurationParent> parent() {
-                return ConstantConfiguration.this;
+            @Override final ConstantBindingConfiguration<ConfigurationParent> parent() {
+                return ConstantBindingConfiguration.this;
             }
         }
     }
