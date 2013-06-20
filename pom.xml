@@ -16,7 +16,7 @@
 
     <groupId>net.java.guicer</groupId>
     <artifactId>guicer</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
 
     <name>Guicer</name>
     <url>https://github.com/christian-schlichtherle/guicer</url>
@@ -27,6 +27,10 @@
             <url>http://www.eclipse.org/legal/epl-v10.html</url>
         </license>
     </licenses>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://java.net/jira/browse/GUICER</url>
+    </issueManagement>
     <scm>
         <developerConnection>scm:git:git@github.com:christian-schlichtherle/guicer.git</developerConnection>
         <url>https://github.com/christian-schlichtherle/guicer</url>
