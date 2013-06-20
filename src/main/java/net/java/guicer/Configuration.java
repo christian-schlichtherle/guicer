@@ -5,7 +5,7 @@
 package net.java.guicer;
 
 /**
- * A configuration item which is installable.
+ * Configures a target.
  * This is not part of the DSL, so it's package private.
  *
  * @param  <Target> The type of the installation target for this configuration
