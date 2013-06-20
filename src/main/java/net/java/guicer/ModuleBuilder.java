@@ -69,10 +69,6 @@ implements Builder<Module>, Injection<Parent> {
                 addBinding(configuration);
             }
 
-            @Override public AnnotatedElementBuilder expose(PrivateBinder binder) {
-                throw new AssertionError();
-            }
-
             @Override public AnnotatedBindingBuilder<Type> bind(Binder binder) {
                 return binder.bind(clazz);
             }
@@ -167,7 +163,10 @@ implements Builder<Module>, Injection<Parent> {
     private abstract class AnnotatedConfiguration<Type>
     extends LinkedConfiguration<Type>
     implements AnnotatedBindingBuilderWithInjection<Type, ModuleBuilder<Parent>> {
-        @Override abstract AnnotatedElementBuilder expose(PrivateBinder binder);
+        @Override AnnotatedElementBuilder expose(PrivateBinder binder) {
+            throw new AssertionError();
+        }
+
         @Override abstract AnnotatedBindingBuilder<Type> bind(Binder binder);
 
         @Override
@@ -653,7 +652,7 @@ implements Builder<Module>, Injection<Parent> {
 
     private abstract class Configuration
     implements Injection<ModuleBuilder<Parent>> {
-        @Override public ModuleBuilder<Parent> inject() {
+        @Override public final ModuleBuilder<Parent> inject() {
             add(this);
             return ModuleBuilder.this;
         }
