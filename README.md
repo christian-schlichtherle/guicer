@@ -14,7 +14,7 @@ This page also contains information about how to contact the project author / te
 Guicer is built with Apache Maven.
 However, there is no distribution yet, so you need to build it yourself.
 For building, you need Java SE 6 and Apache Maven 3.0.4 or higher installed.
-Change to the [source code repository] directory and run:
+Change to the repository directory and run:
 
     $ mvn clean install
 
