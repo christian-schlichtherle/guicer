@@ -5,9 +5,9 @@ injectors which is simpler and more concise than the original Guice DSL.
 
 ## Documentation
 
-An introduction to the Guicer DSL is available at <https://guicer.java.net>.
-This page also contains information about how to contact the project
-author / team.
+An introduction to the Guicer DSL is available at 
+<https://christian-schlichtherle.github.io/guicer>.
+This page also contains information about how to contact the project author / team.
 
 ## Building
 
