@@ -43,7 +43,7 @@
             <name>Guicer Website</name>
             <!-- DON'T use ${project.groupId}, ${project.artifactId} here.
                  This would change in sub-modules! -->
-            <url>file://${env.HOME}/sites/io.github.christian-schlichtherle/guicer/</url>
+            <url>file://${env.HOME}/sites/christian-schlichtherle.github.io/guicer/</url>
         </site>
     </distributionManagement>
 
